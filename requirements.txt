@@ -1,0 +1,4 @@
+feedparser
+openai
+yagmail
+python-dotenv
