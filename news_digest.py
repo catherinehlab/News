@@ -1,5 +1,5 @@
 import feedparser
-import openai
+from openai import OpenAI
 # import yagmail  # yagmail 삭제
 from datetime import datetime
 from dotenv import load_dotenv
@@ -23,7 +23,7 @@ except ImportError:
 
 # === 설정 ===
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 RECIPIENT = os.getenv("RECIPIENT")
 SENDER = os.getenv("SENDER")
 # APP_PASSWORD = os.getenv("APP_PASSWORD")  # 삭제
@@ -309,20 +309,20 @@ def summarize_news(news_items):
         prompt = f"[{item['source']}] {item['title']}\n\n다음 내용을 3줄로 요약해줘:\n\n{content}"
         print(f"[LOG] {idx+1}번째 뉴스 요약 요청 중...")
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[{"role": "user", "content": prompt}]
             )
-            summary = response["choices"][0]["message"]["content"].strip()
+            summary = response.choices[0].message.content.strip()
             # 해외 뉴스는 한국어 번역 추가
             if item.get("region") == "해외":
                 translate_prompt = f"다음 영어 요약을 자연스러운 한국어로 번역해줘.\n\n{summary}"
                 print(f"[LOG] {idx+1}번째 해외 뉴스 번역 요청 중...")
-                tr_response = openai.ChatCompletion.create(
+                tr_response = client.chat.completions.create(
                     model="gpt-4",
                     messages=[{"role": "user", "content": translate_prompt}]
                 )
-                summary = tr_response["choices"][0]["message"]["content"].strip()
+                summary = tr_response.choices[0].message.content.strip()
         except Exception as e:
             summary = f"요약 실패: {e}"
         summaries.append({
