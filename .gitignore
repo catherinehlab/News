@@ -1,7 +1,4 @@
-credentials.json
-.env
-logs/
-token.pickle.env
-credentials.json
-logs/
-token.pickle
+  .env
+  credentials.json
+  token.pickle
+  logs/
